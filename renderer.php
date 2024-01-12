@@ -127,7 +127,9 @@ class qtype_coderunner_renderer extends qtype_renderer {
         $taattributes = $this->answerbox_attributes($responsefieldname, $rows,
                 $question, $currentlanguage, $options->readonly);
 
+        $qtext .= html_writer::start_div('wrap-editor position-relative');
         $qtext .= html_writer::tag('textarea', s($currentanswer), $taattributes);
+        $qtext .= html_writer::end_div();
 
         if ($qa->get_state() == question_state::$invalid) {
             $qtext .= html_writer::nonempty_tag('div',
@@ -164,6 +166,16 @@ class qtype_coderunner_renderer extends qtype_renderer {
         } else {
             $this->page->requires->js_call_amd('qtype_coderunner/textareas', 'initQuestionTA',
                     [$responsefieldid]);
+        }
+
+        // Specific to Ace editor: add a button to toggle full screen mode.
+        // If there are additional uiplugin, add them here.
+        if(!$options->readonly && ($uiplugin === 'ace' || $uiplugin === 'ace_gapfiller')){
+            $this->page->requires->js_call_amd('qtype_coderunner/fullscreen', 'init', [
+                $qa->get_outer_question_div_unique_id(),
+                $responsefieldid,
+                $uiplugin,
+            ]);
         }
 
         return $qtext;
